@@ -6,225 +6,372 @@ if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
+require_once 'config/database.php';
+
+$database = new Database();
+$pdo = $database->connect();
+
 $user_name = $_SESSION['full_name'];
 $user_type = $_SESSION['user_type'];
+$user_id = $_SESSION['user_id'];
+
+$courses = [];
+if($user_type == 'student') {
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.full_name as instructor_name 
+        FROM courses c 
+        JOIN enrollments e ON c.id = e.course_id 
+        JOIN users u ON c.instructor_id = u.id
+        WHERE e.user_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $stmt = $pdo->prepare("
+        SELECT c.*, u.full_name as instructor_name 
+        FROM courses c 
+        JOIN users u ON c.instructor_id = u.id
+        WHERE c.instructor_id = ?
+    ");
+    $stmt->execute([$user_id]);
+    $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - EDUFLEX</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-        
-        .welcome-section {
-            background: linear-gradient(135deg, #7cb342 0%, #689f38 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-        
-        .welcome-section h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-        
-        .welcome-section p {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-        
-        .user-info {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .user-info h2 {
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #7cb342;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .info-item {
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #7cb342;
-        }
-        
-        .info-label {
-            font-weight: bold;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: #333;
-            font-size: 18px;
-        }
-        
-        .actions-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .action-card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        
-        .action-card h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .action-card p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .action-btn {
-            background-color: #7cb342;
-            color: white;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .action-btn:hover {
-            background-color: #689f38;
-        }
-        
-        .logout-btn {
-            background-color: #d32f2f;
-            color: white;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        
-        .logout-btn:hover {
-            background-color: #b71c1c;
-        }
-    </style>
+    <title>Home - EDUFLEX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">
-            <svg width="40" height="40" viewBox="0 0 40 40">
-                <rect width="40" height="40" rx="5" fill="#7cb342"/>
-                <path d="M10 15 L20 10 L30 15 L20 20 Z" fill="white"/>
-                <path d="M10 20 L10 28 L20 33 L30 28 L30 20" stroke="white" stroke-width="2" fill="none"/>
+    <div class="dashboard-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="dashboard.php" class="menu-item active">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span class="menu-text">Home</span>
+                </a>
+                <a href="my-classes.php" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
+                    <span class="menu-text">My Classes</span>
+                </a>
+                <a href="calendar.php" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>
+                    <span class="menu-text">Calendar</span>
+                </a>
+                <a href="todo.php" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    <span class="menu-text">To-Do</span>
+                </a>
+                <a href="settings.php" class="menu-item">
+                    <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    <span class="menu-text">Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                </div>
+                <div class="top-bar-right">
+                    <div class="user-badge"><?php echo htmlspecialchars($user_type); ?></div>
+                    <button class="icon-btn">
+                        🔔
+                        <span class="notification-badge"></span>
+                    </button>
+                    <div class="user-avatar" id="userAvatar">
+                        <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-dropdown" id="userDropdown">
+                <a href="profile.php" class="dropdown-item">
+                    <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span>My Account</span>
+                </a>
+                <a href="auth/logout.php" class="dropdown-item">
+                    <svg class="dropdown-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+                    <span>Log Out</span>
+                </a>
+            </div>
+            
+            <div class="content-area">
+                <div class="page-header">
+                    <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 👋</h1>
+                    <p class="page-subtitle">Continue your learning journey</p>
+                </div>
+                
+                <div class="courses-grid">
+                    <?php foreach($courses as $course): ?>
+                    <div class="course-card" onclick="window.location.href='course-view.php?id=<?php echo $course['id']; ?>'">
+                        <div class="course-header <?php echo strtolower($course['course_type']); ?>">
+                            <?php 
+                            $icons = [
+                                'python' => '🐍',
+                                'c' => '<svg width="70" height="70" viewBox="0 0 100 100"><text x="50" y="75" font-size="80" text-anchor="middle" fill="white" font-weight="bold">C</text></svg>',
+                                'java' => '☕',
+                                'javascript' => 'JS',
+                                'php' => '<?php',
+                                'html' => '</>',
+                                'css' => '🎨'
+                            ];
+                            echo $icons[strtolower($course['course_type'])] ?? '📚';
+                            ?>
+                        </div>
+                        <div class="course-body">
+                            <div class="course-title"><?php echo htmlspecialchars($course['title']); ?></div>
+                            <div class="course-instructor"><?php echo htmlspecialchars($course['instructor_name']); ?></div>
+                            <div class="course-code"><?php echo htmlspecialchars($course['class_code']); ?></div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                    
+                    <?php if($user_type == 'student'): ?>
+                    <div class="join-class-card" onclick="showJoinModal()">
+                        <div class="join-icon">+</div>
+                        <h3>Join New Class</h3>
+                    </div>
+                    <?php else: ?>
+                    <div class="join-class-card" onclick="showCreateModal()">
+                        <div class="join-icon">+</div>
+                        <h3>Create New Class</h3>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="chat-widget">
+        <button class="chat-button" id="chatButton">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
             </svg>
-            <span>EDU<span class="logo-text">FLEX</span></span>
-        </div>
-        <div class="nav-links">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="courses.php">Courses</a>
-            <a href="profile.php">Profile</a>
-        </div>
-        <div class="auth-buttons">
-            <a href="auth/logout.php"><button class="btn-signin">Logout</button></a>
-        </div>
-    </nav>
-
-    <div class="dashboard-container">
-        <div class="welcome-section">
-            <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
-            <p>Continue your learning journey with EDUFLEX</p>
-        </div>
-
-        <div class="user-info">
-            <h2>Your Account Information</h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Full Name</div>
-                    <div class="info-value"><?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Username</div>
-                    <div class="info-value"><?php echo htmlspecialchars($_SESSION['username']); ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value"><?php echo htmlspecialchars($_SESSION['email']); ?></div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Account Type</div>
-                    <div class="info-value" style="text-transform: capitalize;"><?php echo htmlspecialchars($_SESSION['user_type']); ?></div>
+            Chat with us!
+        </button>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-header">
+                <span>Support Chat</span>
+                <button class="chat-close" id="chatClose">&times;</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    <div class="bot-avatar">🤖</div>
+                    <div class="message-content">
+                        Welcome to EDUFLEX Support! How can we help you today?
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="actions-section">
-            <div class="action-card">
-                <h3>Browse Courses</h3>
-                <p>Explore our wide range of programming courses and tutorials</p>
-                <a href="courses.php" class="action-btn">View Courses</a>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+                <button class="chat-send" id="chatSend">Send</button>
             </div>
-            
-            <div class="action-card">
-                <h3>My Learning</h3>
-                <p>Continue with your enrolled courses and track your progress</p>
-                <a href="my-courses.php" class="action-btn">My Courses</a>
-            </div>
-            
-            <div class="action-card">
-                <h3>Practice Problems</h3>
-                <p>Solve coding challenges and improve your programming skills</p>
-                <a href="problems.php" class="action-btn">Start Practicing</a>
-            </div>
-            
-            <?php if($user_type === 'teacher' || $user_type === 'admin'): ?>
-            <div class="action-card">
-                <h3>Create Course</h3>
-                <p>Create and manage your own programming courses</p>
-                <a href="create-course.php" class="action-btn">Create Course</a>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="auth/logout.php"><button class="logout-btn">Logout</button></a>
         </div>
     </div>
+
+    <div class="modal" id="joinModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeJoinModal()">&times;</button>
+            <h2>Join Class</h2>
+            <div class="alert" id="joinAlert"></div>
+            <form id="joinForm">
+                <div class="form-group">
+                    <label for="class-code">Class Code</label>
+                    <input type="text" id="class-code" name="class_code" placeholder="Enter class code" required>
+                </div>
+                <button type="submit" class="btn-submit">Join Class</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="createModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+            <h2>Create New Class</h2>
+            <div class="alert" id="createAlert"></div>
+            <form id="createForm">
+                <div class="form-group">
+                    <label for="course-name">Course Name</label>
+                    <input type="text" id="course-name" name="course_name" placeholder="e.g. Python Programming" required>
+                </div>
+                <div class="form-group">
+                    <label for="course-type">Course Type</label>
+                    <input type="text" id="course-type" name="course_type" placeholder="e.g. Python, C, Java" required>
+                </div>
+                <div class="form-group">
+                    <label for="course-description">Description</label>
+                    <input type="text" id="course-description" name="description" placeholder="Brief course description">
+                </div>
+                <button type="submit" class="btn-submit">Create Class</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const userAvatar = document.getElementById('userAvatar');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('expanded');
+        });
+        
+        userAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!userDropdown.contains(e.target) && e.target !== userAvatar) {
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        const chatButton = document.getElementById('chatButton');
+        const chatBox = document.getElementById('chatBox');
+        const chatClose = document.getElementById('chatClose');
+        const chatInput = document.getElementById('chatInput');
+        const chatSend = document.getElementById('chatSend');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        chatButton.addEventListener('click', function() {
+            chatBox.classList.add('active');
+            chatButton.style.display = 'none';
+            chatInput.focus();
+        });
+        
+        chatClose.addEventListener('click', function() {
+            chatBox.classList.remove('active');
+            chatButton.style.display = 'flex';
+        });
+        
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message === '') return;
+            
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'chat-message user';
+            userMessageDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(message)}</div>
+            `;
+            chatMessages.appendChild(userMessageDiv);
+            
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            setTimeout(function() {
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot';
+                botMessageDiv.innerHTML = `
+                    <div class="bot-avatar">🤖</div>
+                    <div class="message-content">Thanks for your message! Our support team will respond shortly.</div>
+                `;
+                chatMessages.appendChild(botMessageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+        }
+        
+        chatSend.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function showJoinModal() {
+            document.getElementById('joinModal').classList.add('active');
+        }
+        
+        function closeJoinModal() {
+            document.getElementById('joinModal').classList.remove('active');
+        }
+
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+        
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('actions/join_class.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alert = document.getElementById('joinAlert');
+                if(data.success) {
+                    alert.className = 'alert success';
+                    alert.textContent = data.message;
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert.className = 'alert error';
+                    alert.textContent = data.message;
+                }
+            });
+        });
+
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('actions/create_class.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alert = document.getElementById('createAlert');
+                if(data.success) {
+                    alert.className = 'alert success';
+                    alert.textContent = data.message;
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert.className = 'alert error';
+                    alert.textContent = data.message;
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if(e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -29,8 +29,8 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             <a href="about.php">About Us</a>
         </div>
         <div class="auth-buttons">
-            <button class="btn-signin" id="signinBtn">Sign In</button>
-            <button class="btn-signup" id="signupBtn">Sign Up</button>
+            <button class="btn-signin" onclick="window.location.href='auth/login.php'">Sign In</button>
+            <button class="btn-signup" onclick="window.location.href='auth/register.php'">Sign Up</button>
         </div>
     </nav>
 
@@ -76,7 +76,7 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             
             <div class="hero-text">
                 <h1>A Learning Management System Platform for Programming Education for the Computer Science Department</h1>
-                <button class="btn-hero" id="heroSigninBtn">Sign in</button>
+                <button class="btn-hero" onclick="window.location.href='login.php'">Sign in</button>
             </div>
         </div>
     </section>
@@ -102,69 +102,6 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                 <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
                 <button class="chat-send" id="chatSend">Send</button>
             </div>
-        </div>
-    </div>
-
-    <div class="modal" id="signinModal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2>Sign In</h2>
-            <div class="alert" id="signinAlert"></div>
-            <form id="signinForm">
-                <div class="form-group">
-                    <label for="signin-username">Username or Email</label>
-                    <input type="text" id="signin-username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="signin-password">Password</label>
-                    <input type="password" id="signin-password" name="password" required>
-                </div>
-                <button type="submit" class="btn-submit">Sign In</button>
-                <div class="switch-form">
-                    Don't have an account? <a href="#" onclick="switchToSignup()">Sign Up</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="signupModal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2>Sign Up</h2>
-            <div class="alert" id="signupAlert"></div>
-            <form id="signupForm">
-                <div class="form-group">
-                    <label for="signup-fullname">Full Name</label>
-                    <input type="text" id="signup-fullname" name="full_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-username">Username</label>
-                    <input type="text" id="signup-username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-usertype">User Type</label>
-                    <select id="signup-usertype" name="user_type" required>
-                        <option value="student">Student</option>
-                        <option value="teacher">Teacher</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-confirm">Confirm Password</label>
-                    <input type="password" id="signup-confirm" name="confirm_password" required>
-                </div>
-                <button type="submit" class="btn-submit">Sign Up</button>
-                <div class="switch-form">
-                    Already have an account? <a href="#" onclick="switchToSignin()">Sign In</a>
-                </div>
-            </form>
         </div>
     </div>
 
