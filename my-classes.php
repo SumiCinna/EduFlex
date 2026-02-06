@@ -1,15 +1,10 @@
 <?php
- session_start();
+session_start();
 
-   if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-       header('Location: auth/login.php');
-       exit();
-   }
-
-   if($_SESSION['user_type'] === 'teacher') {
-       header('Location: teacher-dashboard.php');
-       exit();
-   }
+if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: index.php');
+    exit();
+}
 
 require_once 'config/database.php';
 
@@ -20,12 +15,6 @@ $user_name = $_SESSION['full_name'];
 $user_type = $_SESSION['user_type'];
 $user_id = $_SESSION['user_id'];
 
-$quiz_stats = ['missed' => 0, 'completed' => 0];
-$activity_stats = ['missed' => 0, 'completed' => 0];
-$exam_stats = ['missed' => 0, 'completed' => 0];
-$participation_stats = ['present' => 0, 'absences' => 0, 'recitation' => 0];
-$performance_stats = ['assignments' => 0, 'quizzes' => 0, 'exams' => 0];
-
 $courses = [];
 if($user_type == 'student') {
     $stmt = $pdo->prepare("
@@ -34,7 +23,6 @@ if($user_type == 'student') {
         JOIN enrollments e ON c.id = e.course_id 
         JOIN users u ON c.instructor_id = u.id
         WHERE e.user_id = ?
-        LIMIT 3
     ");
     $stmt->execute([$user_id]);
     $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -44,7 +32,6 @@ if($user_type == 'student') {
         FROM courses c 
         JOIN users u ON c.instructor_id = u.id
         WHERE c.instructor_id = ?
-        LIMIT 3
     ");
     $stmt->execute([$user_id]);
     $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -55,9 +42,9 @@ if($user_type == 'student') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - EDUFLEX</title>
+    <title>My Classes - EDUFLEX</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/my-classes.css">
     <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 <body>
@@ -68,11 +55,11 @@ if($user_type == 'student') {
             </div>
             
             <nav class="sidebar-menu">
-                <a href="dashboard.php" class="menu-item active">
+                <a href="dashboard.php" class="menu-item">
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     <span class="menu-text">Home</span>
                 </a>
-                <a href="my-classes.php" class="menu-item">
+                <a href="my-classes.php" class="menu-item active">
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
                     <span class="menu-text">My Classes</span>
                 </a>
@@ -123,114 +110,14 @@ if($user_type == 'student') {
             
             <div class="content-area">
                 <div class="page-header">
-                    <h1 class="page-title">Hello, <?php echo htmlspecialchars(explode(' ', $user_name)[0]); ?>!</h1>
-                    <p class="page-subtitle">Here's your learning overview</p>
+                    <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($user_name); ?>! 👋</h1>
+                    <p class="page-subtitle">Continue your learning journey</p>
                 </div>
                 
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="card-icon">📝</div>
-                        <h3>Quiz</h3>
-                        <div class="stat-details">
-                            <div class="stat-number">
-                                <span class="label">Missed</span>
-                                <span class="value"><?php echo $quiz_stats['missed']; ?></span>
-                            </div>
-                            <div class="stat-number completed">
-                                <span class="label">Completed</span>
-                                <span class="value"><?php echo $quiz_stats['completed']; ?></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="card-icon">📚</div>
-                        <h3>Activities</h3>
-                        <div class="stat-details">
-                            <div class="stat-number">
-                                <span class="label">Missed</span>
-                                <span class="value"><?php echo $activity_stats['missed']; ?></span>
-                            </div>
-                            <div class="stat-number completed">
-                                <span class="label">Completed</span>
-                                <span class="value"><?php echo $activity_stats['completed']; ?></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="card-icon">📊</div>
-                        <h3>Exam</h3>
-                        <div class="stat-details">
-                            <div class="stat-number">
-                                <span class="label">Missed</span>
-                                <span class="value"><?php echo $exam_stats['missed']; ?></span>
-                            </div>
-                            <div class="stat-number completed">
-                                <span class="label">Completed</span>
-                                <span class="value"><?php echo $exam_stats['completed']; ?></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="analytics-section">
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <h3>Participation Analytics</h3>
-                            <div class="chart-container">
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $participation_stats['present']; ?>%;">
-                                        <span class="bar-value"><?php echo $participation_stats['present']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Present</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $participation_stats['absences']; ?>%;">
-                                        <span class="bar-value"><?php echo $participation_stats['absences']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Absences</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $participation_stats['recitation']; ?>%;">
-                                        <span class="bar-value"><?php echo $participation_stats['recitation']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Recitation</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="analytics-card">
-                            <h3>Academic Performance</h3>
-                            <div class="chart-container">
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $performance_stats['assignments']; ?>%;">
-                                        <span class="bar-value"><?php echo $performance_stats['assignments']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Assignments</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $performance_stats['quizzes']; ?>%;">
-                                        <span class="bar-value"><?php echo $performance_stats['quizzes']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Quizzes</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="bar" style="height: <?php echo $performance_stats['exams']; ?>%;">
-                                        <span class="bar-value"><?php echo $performance_stats['exams']; ?>%</span>
-                                    </div>
-                                    <span class="bar-label">Exams</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section-title">Grade per Courses</div>
-                <div class="course-preview-grid">
+                <div class="courses-grid">
                     <?php foreach($courses as $course): ?>
-                    <div class="course-preview-card" onclick="window.location.href='course-view.php?id=<?php echo $course['id']; ?>'">
-                        <div class="course-preview-header <?php echo strtolower($course['course_type']); ?>">
+                    <div class="course-card" onclick="window.location.href='course-view.php?id=<?php echo $course['id']; ?>'">
+                        <div class="course-header <?php echo strtolower($course['course_type']); ?>">
                             <?php 
                             $icons = [
                                 'python' => '🐍',
@@ -244,13 +131,25 @@ if($user_type == 'student') {
                             echo $icons[strtolower($course['course_type'])] ?? '📚';
                             ?>
                         </div>
-                        <div class="course-preview-body">
-                            <div class="course-preview-title"><?php echo htmlspecialchars($course['title']); ?></div>
-                            <div class="course-preview-instructor">Professor <?php echo htmlspecialchars($course['instructor_name']); ?></div>
-                            <div class="course-preview-code"><?php echo htmlspecialchars($course['class_code']); ?></div>
+                        <div class="course-body">
+                            <div class="course-title"><?php echo htmlspecialchars($course['title']); ?></div>
+                            <div class="course-instructor"><?php echo htmlspecialchars($course['instructor_name']); ?></div>
+                            <div class="course-code"><?php echo htmlspecialchars($course['class_code']); ?></div>
                         </div>
                     </div>
                     <?php endforeach; ?>
+                    
+                    <?php if($user_type == 'student'): ?>
+                    <div class="join-class-card" onclick="showJoinModal()">
+                        <div class="join-icon">+</div>
+                        <h3>Join New Class</h3>
+                    </div>
+                    <?php else: ?>
+                    <div class="join-class-card" onclick="showCreateModal()">
+                        <div class="join-icon">+</div>
+                        <h3>Create New Class</h3>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>
@@ -280,6 +179,44 @@ if($user_type == 'student') {
                 <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
                 <button class="chat-send" id="chatSend">Send</button>
             </div>
+        </div>
+    </div>
+
+    <div class="modal" id="joinModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeJoinModal()">&times;</button>
+            <h2>Join Class</h2>
+            <div class="alert" id="joinAlert"></div>
+            <form id="joinForm">
+                <div class="form-group">
+                    <label for="class-code">Class Code</label>
+                    <input type="text" id="class-code" name="class_code" placeholder="Enter class code" required>
+                </div>
+                <button type="submit" class="btn-submit">Join Class</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="createModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+            <h2>Create New Class</h2>
+            <div class="alert" id="createAlert"></div>
+            <form id="createForm">
+                <div class="form-group">
+                    <label for="course-name">Course Name</label>
+                    <input type="text" id="course-name" name="course_name" placeholder="e.g. Python Programming" required>
+                </div>
+                <div class="form-group">
+                    <label for="course-type">Course Type</label>
+                    <input type="text" id="course-type" name="course_type" placeholder="e.g. Python, C, Java" required>
+                </div>
+                <div class="form-group">
+                    <label for="course-description">Description</label>
+                    <input type="text" id="course-description" name="description" placeholder="Brief course description">
+                </div>
+                <button type="submit" class="btn-submit">Create Class</button>
+            </form>
         </div>
     </div>
     <script src="js/dark-mode.js"></script>
@@ -366,6 +303,76 @@ if($user_type == 'student') {
             };
             return text.replace(/[&<>"']/g, m => map[m]);
         }
+        
+        function showJoinModal() {
+            document.getElementById('joinModal').classList.add('active');
+        }
+        
+        function closeJoinModal() {
+            document.getElementById('joinModal').classList.remove('active');
+        }
+
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+        
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+        }
+
+        document.getElementById('joinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('actions/join_class.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alert = document.getElementById('joinAlert');
+                if(data.success) {
+                    alert.className = 'alert success';
+                    alert.textContent = data.message;
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert.className = 'alert error';
+                    alert.textContent = data.message;
+                }
+            });
+        });
+
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('actions/create_class.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alert = document.getElementById('createAlert');
+                if(data.success) {
+                    alert.className = 'alert success';
+                    alert.textContent = data.message;
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert.className = 'alert error';
+                    alert.textContent = data.message;
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if(e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
     </script>
 </body>
 </html>

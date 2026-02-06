@@ -69,23 +69,18 @@ try {
 
     $stmt = $pdo->prepare("
         INSERT INTO users (username, email, full_name, password, google_id, profile_image, user_type, created_at, last_login) 
-        VALUES (?, ?, ?, NULL, ?, ?, 'student', NOW(), NOW())
+        VALUES (?, ?, ?, NULL, ?, ?, NULL, NOW(), NOW())
     ");
     
     $stmt->execute([$username, $email, $name, $google_id, $picture]);
     
     $user_id = $pdo->lastInsertId();
 
-    $_SESSION['logged_in'] = true;
-    $_SESSION['user_id'] = $user_id;
-    $_SESSION['username'] = $username;
-    $_SESSION['email'] = $email;
-    $_SESSION['user_type'] = 'student';
-    $_SESSION['full_name'] = $name;
+    $_SESSION['pending_user_id'] = $user_id;
 
     echo json_encode([
         'success' => true,
-        'message' => 'Registration successful! Redirecting to dashboard...'
+        'message' => 'Registration successful! Please select your role.'
     ]);
 
 } catch(PDOException $e) {

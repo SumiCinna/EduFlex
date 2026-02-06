@@ -79,14 +79,6 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label>User Type</label>
-                        <select name="user_type" required>
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
-                        </select>
-                    </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label>Password</label>
@@ -143,7 +135,7 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                         alert.className = 'alert success';
                         alert.textContent = data.message;
                         setTimeout(() => {
-                            window.location.href = '../dashboard.php';
+                            window.location.href = '../select-role.php';
                         }, 1000);
                     } else {
                         alert.className = 'alert error';
@@ -168,7 +160,7 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('register.php', {
+            fetch('register-backend.php', {
                 method: 'POST',
                 body: formData
             })
@@ -179,7 +171,7 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
                     alert.className = 'alert success';
                     alert.textContent = data.message;
                     setTimeout(() => {
-                        window.location.href = 'login.php';
+                        window.location.href = '../select-role.php';
                     }, 1500);
                 } else {
                     alert.className = 'alert error';

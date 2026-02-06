@@ -142,7 +142,7 @@ if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('login.php', {
+            fetch('login-backend.php', {
                 method: 'POST',
                 body: formData
             })

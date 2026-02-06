@@ -1,0 +1,546 @@
+/* ========================================
+   DARK MODE STYLES - EDUFLEX
+   Include this file in all pages
+   ======================================== */
+
+/* Base Dark Mode Styles */
+body.dark-mode {
+    background-color: #0f1419;
+    color: #e2e8f0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Sidebar Dark Mode */
+body.dark-mode .sidebar {
+    background-color: #1a1f2e;
+    border-right: 1px solid #2d3748;
+}
+
+body.dark-mode .sidebar-header {
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .menu-toggle {
+    color: #e2e8f0;
+    background-color: transparent;
+}
+
+body.dark-mode .menu-toggle:hover {
+    background-color: #2d3748;
+}
+
+body.dark-mode .menu-item {
+    color: #a0aec0;
+}
+
+body.dark-mode .menu-item:hover {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .menu-item.active {
+    background-color: #4299e1;
+    color: #ffffff;
+}
+
+body.dark-mode .menu-icon {
+    fill: currentColor;
+}
+
+/* Top Bar Dark Mode */
+body.dark-mode .top-bar {
+    background-color: #1a1f2e;
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .user-badge {
+    background-color: #2d3748;
+    color: #63b3ed;
+    border: 1px solid #4299e1;
+}
+
+body.dark-mode .icon-btn {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .icon-btn:hover {
+    background-color: #4a5568;
+}
+
+body.dark-mode .notification-badge {
+    background-color: #f56565;
+}
+
+body.dark-mode .user-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+/* Dropdown Dark Mode */
+body.dark-mode .user-dropdown {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .dropdown-item {
+    color: #e2e8f0;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #4a5568;
+}
+
+body.dark-mode .dropdown-icon {
+    color: #a0aec0;
+}
+
+/* Main Content Dark Mode */
+body.dark-mode .main-content {
+    background-color: #0f1419;
+}
+
+body.dark-mode .content-area {
+    background-color: #0f1419;
+}
+
+body.dark-mode .page-title {
+    color: #e2e8f0;
+}
+
+body.dark-mode .page-subtitle {
+    color: #a0aec0;
+}
+
+/* Cards and Sections Dark Mode */
+body.dark-mode .settings-section,
+body.dark-mode .card,
+body.dark-mode .class-card,
+body.dark-mode .assignment-card,
+body.dark-mode .todo-card {
+    background-color: #1a1f2e;
+    border: 1px solid #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .section-title,
+body.dark-mode .card-title {
+    color: #e2e8f0;
+}
+
+body.dark-mode .card-subtitle,
+body.dark-mode .card-description {
+    color: #a0aec0;
+}
+
+/* Forms Dark Mode */
+body.dark-mode .form-group label {
+    color: #e2e8f0;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea,
+body.dark-mode .form-group select {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group textarea:focus,
+body.dark-mode .form-group select:focus {
+    background-color: #374151;
+    border-color: #4299e1;
+    outline: none;
+}
+
+body.dark-mode .form-group input::placeholder,
+body.dark-mode .form-group textarea::placeholder {
+    color: #718096;
+}
+
+/* Buttons Dark Mode */
+body.dark-mode .btn-primary {
+    background-color: #4299e1;
+    color: #ffffff;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #3182ce;
+}
+
+body.dark-mode .btn-secondary {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background-color: #4a5568;
+}
+
+body.dark-mode .btn-danger {
+    background-color: #f56565;
+    color: #ffffff;
+}
+
+body.dark-mode .btn-danger:hover {
+    background-color: #e53e3e;
+}
+
+/* Settings Specific Dark Mode */
+body.dark-mode .profile-avatar-section {
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .profile-avatar-large {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.dark-mode .setting-item {
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .setting-item h3 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .setting-item p {
+    color: #a0aec0;
+}
+
+body.dark-mode .toggle-switch {
+    background-color: #4a5568;
+}
+
+body.dark-mode .toggle-switch.active {
+    background-color: #4299e1;
+}
+
+/* Alerts Dark Mode */
+body.dark-mode .alert {
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+body.dark-mode .alert.success {
+    background-color: #2d4a3e;
+    color: #68d391;
+    border: 1px solid #48bb78;
+}
+
+body.dark-mode .alert.error {
+    background-color: #4a2d2d;
+    color: #fc8181;
+    border: 1px solid #f56565;
+}
+
+body.dark-mode .alert.info {
+    background-color: #2d3e4a;
+    color: #63b3ed;
+    border: 1px solid #4299e1;
+}
+
+/* Chat Widget Dark Mode */
+body.dark-mode .chat-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.dark-mode .chat-box {
+    background-color: #1a1f2e;
+    border: 1px solid #2d3748;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .chat-messages {
+    background-color: #0f1419;
+}
+
+body.dark-mode .chat-message.bot .message-content {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .chat-message.user .message-content {
+    background-color: #4299e1;
+    color: #ffffff;
+}
+
+body.dark-mode .chat-input {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .chat-input:focus {
+    border-color: #4299e1;
+}
+
+body.dark-mode .chat-input::placeholder {
+    color: #718096;
+}
+
+body.dark-mode .chat-send {
+    background-color: #4299e1;
+}
+
+body.dark-mode .chat-send:hover {
+    background-color: #3182ce;
+}
+
+/* Calendar Dark Mode */
+body.dark-mode .calendar-header {
+    background-color: #1a1f2e;
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .calendar-grid {
+    background-color: #1a1f2e;
+}
+
+body.dark-mode .calendar-day {
+    background-color: #0f1419;
+    border: 1px solid #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .calendar-day:hover {
+    background-color: #2d3748;
+}
+
+body.dark-mode .calendar-day.today {
+    background-color: #2d3e4a;
+    border-color: #4299e1;
+}
+
+body.dark-mode .calendar-day.has-event {
+    background-color: #2d4a3e;
+}
+
+/* Todo Dark Mode */
+body.dark-mode .todo-item {
+    background-color: #1a1f2e;
+    border: 1px solid #2d3748;
+}
+
+body.dark-mode .todo-item:hover {
+    border-color: #4a5568;
+}
+
+body.dark-mode .todo-item.completed {
+    opacity: 0.6;
+}
+
+body.dark-mode .todo-checkbox {
+    border: 2px solid #4a5568;
+    background-color: #2d3748;
+}
+
+body.dark-mode .todo-checkbox.checked {
+    background-color: #48bb78;
+    border-color: #48bb78;
+}
+
+/* Table Dark Mode */
+body.dark-mode table {
+    background-color: #1a1f2e;
+}
+
+body.dark-mode th {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border-bottom: 2px solid #4a5568;
+}
+
+body.dark-mode td {
+    border-bottom: 1px solid #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode tr:hover {
+    background-color: #2d3748;
+}
+
+/* Badge Dark Mode */
+body.dark-mode .badge {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+body.dark-mode .badge.success {
+    background-color: #2d4a3e;
+    color: #68d391;
+}
+
+body.dark-mode .badge.warning {
+    background-color: #4a3d2d;
+    color: #f6ad55;
+}
+
+body.dark-mode .badge.danger {
+    background-color: #4a2d2d;
+    color: #fc8181;
+}
+
+body.dark-mode .badge.info {
+    background-color: #2d3e4a;
+    color: #63b3ed;
+}
+
+/* Progress Bar Dark Mode */
+body.dark-mode .progress-bar {
+    background-color: #2d3748;
+}
+
+body.dark-mode .progress-fill {
+    background: linear-gradient(90deg, #4299e1 0%, #667eea 100%);
+}
+
+/* Modal Dark Mode */
+body.dark-mode .modal {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .modal-content {
+    background-color: #1a1f2e;
+    border: 1px solid #2d3748;
+}
+
+body.dark-mode .modal-header {
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .modal-footer {
+    border-top: 1px solid #2d3748;
+}
+
+/* Scrollbar Dark Mode */
+body.dark-mode ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background-color: #1a1f2e;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+    border-radius: 5px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background-color: #718096;
+}
+
+/* Classes Page Dark Mode */
+body.dark-mode .class-header {
+    color: #e2e8f0;
+}
+
+body.dark-mode .class-code {
+    background-color: #2d3748;
+    color: #63b3ed;
+}
+
+body.dark-mode .class-description {
+    color: #a0aec0;
+}
+
+body.dark-mode .class-stats {
+    background-color: #2d3748;
+}
+
+body.dark-mode .stat-value {
+    color: #e2e8f0;
+}
+
+body.dark-mode .stat-label {
+    color: #a0aec0;
+}
+
+/* Dashboard Stats Dark Mode */
+body.dark-mode .stat-card {
+    background-color: #1a1f2e;
+    border: 1px solid #2d3748;
+}
+
+body.dark-mode .stat-icon {
+    background-color: #2d3748;
+}
+
+body.dark-mode .stat-number {
+    color: #e2e8f0;
+}
+
+body.dark-mode .stat-text {
+    color: #a0aec0;
+}
+
+/* Search and Filter Dark Mode */
+body.dark-mode .search-bar,
+body.dark-mode .filter-select {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-mode .search-bar:focus,
+body.dark-mode .filter-select:focus {
+    border-color: #4299e1;
+}
+
+body.dark-mode .search-bar::placeholder {
+    color: #718096;
+}
+
+/* Tabs Dark Mode */
+body.dark-mode .tabs {
+    border-bottom: 1px solid #2d3748;
+}
+
+body.dark-mode .tab {
+    color: #a0aec0;
+}
+
+body.dark-mode .tab:hover {
+    color: #e2e8f0;
+}
+
+body.dark-mode .tab.active {
+    color: #4299e1;
+    border-bottom: 2px solid #4299e1;
+}
+
+/* Empty State Dark Mode */
+body.dark-mode .empty-state {
+    color: #a0aec0;
+}
+
+body.dark-mode .empty-state-icon {
+    color: #4a5568;
+}
+
+/* Loading Spinner Dark Mode */
+body.dark-mode .spinner {
+    border-color: #2d3748;
+    border-top-color: #4299e1;
+}
+
+/* Tooltip Dark Mode */
+body.dark-mode .tooltip {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: 1px solid #4a5568;
+}
+
+/* Smooth transitions for all dark mode changes */
+body.dark-mode * {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
