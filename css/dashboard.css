@@ -22,7 +22,7 @@ body.dark-mode {
 
 .sidebar {
     width: 80px;
-    background: #2d3748;
+    background: #008000;
     transition: width 0.3s ease;
     position: fixed;
     height: 100vh;

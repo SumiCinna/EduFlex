@@ -156,23 +156,6 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <div class="toggle-slider"></div>
                             </div>
                         </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Email Notifications</h3>
-                                <p>Receive email updates about your courses</p>
-                            </div>
-                            <div class="toggle-switch active" id="emailToggle">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Push Notifications</h3>
-                                <p>Get notified about new assignments and announcements</p>
-                            </div>
-                            <div class="toggle-switch active" id="pushToggle">
-                                <div class="toggle-slider"></div>
-                            </div>
                         </div>
                     </div>
 
