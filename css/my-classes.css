@@ -22,7 +22,7 @@ body.dark-mode {
 
 .sidebar {
     width: 80px;
-    background: #008000;
+    background: #74c365;
     transition: width 0.3s ease;
     position: fixed;
     height: 100vh;
@@ -64,7 +64,7 @@ body.dark-mode .sidebar {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    color: #a0aec0;
+    color: #000000;
     text-decoration: none;
     transition: all 0.3s ease;
     position: relative;
@@ -77,7 +77,7 @@ body.dark-mode .sidebar {
 
 .menu-item.active {
     background: rgba(102, 126, 234, 0.2);
-    color: #667eea;
+    color: #000000;
 }
 
 .menu-item.active::before {
@@ -87,7 +87,7 @@ body.dark-mode .sidebar {
     top: 0;
     height: 100%;
     width: 4px;
-    background: #667eea;
+    background: #558b2f;
 }
 
 .menu-icon {
