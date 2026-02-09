@@ -16,25 +16,38 @@ $user_type = $_SESSION['user_type'];
 $user_id = $_SESSION['user_id'];
 
 $courses = [];
-if($user_type == 'student') {
-    $stmt = $pdo->prepare("
-        SELECT c.*, u.full_name as instructor_name 
-        FROM courses c 
-        JOIN enrollments e ON c.id = e.course_id 
-        JOIN users u ON c.instructor_id = u.id
-        WHERE e.user_id = ?
-    ");
-    $stmt->execute([$user_id]);
-    $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    $stmt = $pdo->prepare("
-        SELECT c.*, u.full_name as instructor_name 
-        FROM courses c 
-        JOIN users u ON c.instructor_id = u.id
-        WHERE c.instructor_id = ?
-    ");
-    $stmt->execute([$user_id]);
-    $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if($pdo) {
+    try {
+        if($user_type == 'student') {
+            $stmt = $pdo->prepare("
+                SELECT c.*, u.full_name as instructor_name, pl.language_name, s.subject_name, p.program_name
+                FROM courses c 
+                JOIN enrollments e ON c.id = e.course_id 
+                JOIN users u ON c.teacher_id = u.id
+                LEFT JOIN programming_languages pl ON c.language_id = pl.language_id
+                LEFT JOIN subjects s ON c.subject_id = s.subject_id
+                LEFT JOIN programs p ON c.program_id = p.program_id
+                WHERE e.user_id = ?
+            ");
+            $stmt->execute([$user_id]);
+            $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $stmt = $pdo->prepare("
+                SELECT c.*, u.full_name as instructor_name, pl.language_name, s.subject_name, p.program_name
+                FROM courses c 
+                JOIN users u ON c.teacher_id = u.id
+                LEFT JOIN programming_languages pl ON c.language_id = pl.language_id
+                LEFT JOIN subjects s ON c.subject_id = s.subject_id
+                LEFT JOIN programs p ON c.program_id = p.program_id
+                WHERE c.teacher_id = ?
+            ");
+            $stmt->execute([$user_id]);
+            $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+    } catch(PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        $courses = [];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -117,24 +130,16 @@ if($user_type == 'student') {
                 <div class="courses-grid">
                     <?php foreach($courses as $course): ?>
                     <div class="course-card" onclick="window.location.href='course-view.php?id=<?php echo $course['id']; ?>'">
-                        <div class="course-header <?php echo strtolower($course['course_type']); ?>">
+                        <div class="course-header">
                             <?php 
-                            $icons = [
-                                'python' => '🐍',
-                                'c' => '<svg width="70" height="70" viewBox="0 0 100 100"><text x="50" y="75" font-size="80" text-anchor="middle" fill="white" font-weight="bold">C</text></svg>',
-                                'java' => '☕',
-                                'javascript' => 'JS',
-                                'php' => '<?php',
-                                'html' => '</>',
-                                'css' => '🎨'
-                            ];
-                            echo $icons[strtolower($course['course_type'])] ?? '📚';
+                            $courseName = $course['language_name'] ?? $course['subject_name'] ?? $course['title'] ?? 'Course';
+                            echo strtoupper(substr($courseName, 0, 1));
                             ?>
                         </div>
                         <div class="course-body">
-                            <div class="course-title"><?php echo htmlspecialchars($course['title']); ?></div>
-                            <div class="course-instructor"><?php echo htmlspecialchars($course['instructor_name']); ?></div>
-                            <div class="course-code"><?php echo htmlspecialchars($course['class_code']); ?></div>
+                            <div class="course-title"><?php echo htmlspecialchars($course['language_name'] ?? $course['subject_name'] ?? $course['title'] ?? 'Untitled'); ?></div>
+                            <div class="course-instructor"><?php echo htmlspecialchars($course['instructor_name'] ?? 'Unknown'); ?></div>
+                            <div class="course-code"><?php echo htmlspecialchars($course['class_code'] ?? 'N/A'); ?></div>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -324,7 +329,7 @@ if($user_type == 'student') {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('actions/join_class.php', {
+            fetch('join_class.php', {
                 method: 'POST',
                 body: formData
             })
@@ -348,7 +353,7 @@ if($user_type == 'student') {
             e.preventDefault();
             const formData = new FormData(this);
             
-            fetch('actions/create_class.php', {
+            fetch('create_class.php', {
                 method: 'POST',
                 body: formData
             })

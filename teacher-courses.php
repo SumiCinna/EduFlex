@@ -16,39 +16,10 @@ require_once 'config/database.php';
 $database = new Database();
 $pdo = $database->connect();
 
-$total_students = 0;
-$total_courses = 0;
-$pending_assignments = 0;
-$avg_completion = 0;
 $courses = [];
 
 if($pdo) {
     try {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE user_type = 'student'");
-        $stmt->execute();
-        $total_students = $stmt->fetchColumn();
-        
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM courses WHERE teacher_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        $total_courses = $stmt->fetchColumn();
-        
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM assignments a 
-                               JOIN courses c ON a.course_id = c.id 
-                               WHERE c.teacher_id = ? AND a.status = 'pending'");
-        $stmt->execute([$_SESSION['user_id']]);
-        $pending_assignments = $stmt->fetchColumn();
-        
-        $stmt = $pdo->prepare("SELECT AVG(completion_rate) as avg_rate FROM (
-                               SELECT (COUNT(CASE WHEN status = 'completed' THEN 1 END) * 100.0 / COUNT(*)) as completion_rate
-                               FROM assignments a
-                               JOIN courses c ON a.course_id = c.id
-                               WHERE c.teacher_id = ?
-                               GROUP BY a.course_id
-                               ) as completion_stats");
-        $stmt->execute([$_SESSION['user_id']]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $avg_completion = $result['avg_rate'] ? round($result['avg_rate']) : 0;
-        
         $stmt = $pdo->prepare("SELECT c.*, pl.language_name, s.subject_name, p.program_name 
                                FROM courses c
                                LEFT JOIN programming_languages pl ON c.language_id = pl.language_id
@@ -58,7 +29,6 @@ if($pdo) {
                                ORDER BY c.created_at DESC");
         $stmt->execute([$_SESSION['user_id']]);
         $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
     } catch(PDOException $e) {
         error_log("Database error: " . $e->getMessage());
     }
@@ -69,12 +39,10 @@ if($pdo) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Dashboard - EDUFLEX</title>
+    <title>My Courses - EDUFLEX</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/teacher-dashboard.css">
-    <style>
-   
-</style>
+    <link rel="stylesheet" href="css/teacher-courses.css">
+    
 </head>
 <body>
     <script>
@@ -94,7 +62,7 @@ if($pdo) {
             </div>
             
             <nav class="nav-menu">
-                <a href="teacher-dashboard.php" class="nav-item active">
+                <a href="teacher-dashboard.php" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -103,7 +71,7 @@ if($pdo) {
                     </svg>
                     <span>Dashboard</span>
                 </a>
-                <a href="teacher-courses.php" class="nav-item">
+                <a href="teacher-courses.php" class="nav-item active">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -132,7 +100,7 @@ if($pdo) {
         
         <main class="main-content">
             <header class="top-bar">
-                <h1>Welcome back, <?php echo htmlspecialchars($_SESSION['full_name']); ?>!</h1>
+                <h1>My Courses</h1>
                 <div class="user-info">
                     <div class="user-badge" style="background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%); color: white; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: capitalize; margin-right: 12px;"><?php echo htmlspecialchars($_SESSION['user_type']); ?></div>
                     <button class="notification-btn">
@@ -149,102 +117,48 @@ if($pdo) {
             </header>
             
             <div class="content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #e3f2fd;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3><?php echo $total_courses; ?></h3>
-                            <p>Total Courses</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #f3e5f5;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9c27b0" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3><?php echo $total_students; ?></h3>
-                            <p>Total Students</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #fff3e0;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9800" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3><?php echo $pending_assignments; ?></h3>
-                            <p>Pending Reviews</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon" style="background: #e8f5e9;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3><?php echo $avg_completion; ?>%</h3>
-                            <p>Avg Completion</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <?php if(empty($courses)): ?>
-                <div class="empty-state">
-                    <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="1">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                    </svg>
-                    <h3>No Courses Yet</h3>
-                    <p>Start creating courses to see your dashboard come to life</p>
-                    <a href="create-class.php" class="create-btn">Create Your First Course</a>
-                </div>
-                <?php else: ?>
-                <div class="courses-section">
-                    <div class="section-header">
-                        <h2>My Courses</h2>
-                        <a href="create-class.php" class="create-btn-small">+ Create Class</a>
-                    </div>
+                <div class="courses-container">
                     <div class="courses-grid">
                         <?php foreach($courses as $course): ?>
-                        <div class="course-card">
-                            <div class="course-header" style="background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%);">
-                                <svg width="60" height="60" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="40" fill="white" opacity="0.2"/>
-                                    <text x="50" y="50" text-anchor="middle" dy=".3em" fill="white" font-size="36" font-weight="bold">
-                                        <?php echo strtoupper(substr($course['language_name'] ?? $course['subject_name'] ?? 'C', 0, 1)); ?>
-                                    </text>
-                                </svg>
+                        <a href="course-detail.php?id=<?php echo htmlspecialchars($course['id']); ?>" class="course-card">
+                            <div class="course-header">
+                                <div class="course-icon">
+                                    <svg width="60" height="60" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="45" fill="white"/>
+                                        <text x="50" y="58" text-anchor="middle" fill="#5B9BD5" font-size="32" font-weight="bold" font-family="Arial"><?php echo strtoupper(substr($course['language_name'] ?? $course['subject_name'] ?? 'C', 0, 1)); ?></text>
+                                    </svg>
+                                </div>
+                                <div class="course-menu">
+                                    <button class="menu-btn" onclick="event.preventDefault(); event.stopPropagation();">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="5" r="2" fill="currentColor"/>
+                                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                            <circle cx="12" cy="19" r="2" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="course-body">
                                 <h3><?php echo htmlspecialchars($course['language_name'] ?? $course['subject_name']); ?></h3>
-                                <p class="course-subtitle"><?php echo htmlspecialchars($course['program_name']); ?></p>
+                                <p class="course-program"><?php echo htmlspecialchars($course['program_name']); ?></p>
                                 <p class="course-section">Class <?php echo htmlspecialchars($course['section']); ?></p>
                             </div>
-                            <div class="course-footer">
-                                <a href="course-detail.php?id=<?php echo $course['id']; ?>" class="view-course-btn">View Course</a>
-                            </div>
+                        </a>
+<?php endforeach; ?>
+                        
+                        <div class="course-card create-card">
+                            <a href="create-class.php" class="create-link">
+                                <div class="create-icon">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <p>Create Class</p>
+                            </a>
                         </div>
-                        <?php endforeach; ?>
                     </div>
                 </div>
-                <?php endif; ?>
             </div>
         </main>
     </div>

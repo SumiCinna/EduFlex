@@ -6,39 +6,79 @@ if(!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
+if($_SESSION['user_type'] !== 'student') {
+    header('Location: teacher-dashboard.php');
+    exit();
+}
+
 require_once 'config/database.php';
 
 $database = new Database();
 $pdo = $database->connect();
 
-$user_name = $_SESSION['full_name'];
-$user_type = $_SESSION['user_type'];
-$user_id = $_SESSION['user_id'];
+$course_id = $_GET['id'] ?? null;
+$course = null;
+$lessons = [];
+$activities = [];
+$exams = [];
+$announcements = [];
+$completed_activities = 0;
+$missed_activities = 0;
 
-$user = null;
-if($pdo) {
+if($pdo && $course_id) {
     try {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT c.*, pl.language_name, s.subject_name, p.program_name, u.full_name as teacher_name
+                       FROM courses c
+                       LEFT JOIN programming_languages pl ON c.language_id = pl.language_id
+                       LEFT JOIN subjects s ON c.subject_id = s.subject_id
+                       LEFT JOIN programs p ON c.program_id = p.program_id
+                       LEFT JOIN users u ON c.teacher_id = u.id
+                       JOIN enrollments e ON c.id = e.course_id
+                       WHERE c.id = ? AND e.user_id = ?");
+        $stmt->execute([$course_id, $_SESSION['user_id']]);
+        $course = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if(!$course) {
+            header('Location: my-classes.php');
+            exit();
+        }
+        
+        $stmt = $pdo->prepare("SELECT * FROM lessons WHERE course_id = ? ORDER BY lesson_order ASC, created_at ASC");
+        $stmt->execute([$course_id]);
+        $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $stmt = $pdo->prepare("SELECT * FROM activities WHERE course_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$course_id]);
+        $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $stmt = $pdo->prepare("SELECT * FROM exams WHERE course_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$course_id]);
+        $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $stmt = $pdo->prepare("SELECT a.*, u.full_name as teacher_name 
+                               FROM announcements a
+                               LEFT JOIN users u ON a.teacher_id = u.id
+                               WHERE a.course_id = ? 
+                               ORDER BY a.created_at DESC");
+        $stmt->execute([$course_id]);
+        $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch(PDOException $e) {
         error_log("Database error: " . $e->getMessage());
     }
 }
 
-if(!$user) {
-    header('Location: auth/logout.php');
-    exit();
-}
+$user_name = $_SESSION['full_name'];
+$user_type = $_SESSION['user_type'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - EDUFLEX</title>
+    <title><?php echo $course ? htmlspecialchars($course['language_name'] ?? $course['subject_name'] ?? 'Course') : 'Course'; ?> - EDUFLEX</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/course-view.css">
     <link rel="stylesheet" href="css/dark-mode.css">
 </head>
 <body>
@@ -53,7 +93,7 @@ if(!$user) {
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                     <span class="menu-text">Home</span>
                 </a>
-                <a href="my-classes.php" class="menu-item">
+                <a href="my-classes.php" class="menu-item active">
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
                     <span class="menu-text">My Classes</span>
                 </a>
@@ -65,7 +105,7 @@ if(!$user) {
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     <span class="menu-text">To-Do</span>
                 </a>
-                <a href="settings.php" class="menu-item active">
+                <a href="settings.php" class="menu-item">
                     <svg class="menu-icon" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                     <span class="menu-text">Settings</span>
                 </a>
@@ -103,81 +143,119 @@ if(!$user) {
             </div>
             
             <div class="content-area">
-                <div class="page-header">
-                    <h1 class="page-title">Settings ⚙️</h1>
-                    <p class="page-subtitle">Manage your account preferences</p>
+                <div class="course-header-section">
+                    <button class="back-btn" onclick="window.location.href='my-classes.php'">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <div class="course-title-section">
+                        <div class="course-icon-large">
+                            <?php 
+                            $courseName = $course['language_name'] ?? $course['subject_name'] ?? 'C';
+                            echo strtoupper(substr($courseName, 0, 1));
+                            ?>
+                        </div>
+                        <h1><?php echo htmlspecialchars($course['language_name'] ?? $course['subject_name'] ?? 'Course'); ?></h1>
+                    </div>
                 </div>
 
-                <div class="settings-container">
-                    <div class="settings-section">
-                        <div class="section-title">Profile Information</div>
-                        <div class="profile-avatar-section">
-                            <div class="profile-avatar-large">
-                                <?php echo strtoupper(substr($user_name, 0, 1)); ?>
+                <div class="course-content-grid">
+                    <div class="left-section">
+                        <div class="teacher-card">
+                            <div class="teacher-avatar">
+                                <?php echo strtoupper(substr($course['teacher_name'] ?? 'T', 0, 1)); ?>
                             </div>
-                            <div>
-                                <h2 style="margin: 0 0 5px 0; color: #2d3748;"><?php echo htmlspecialchars($user_name); ?></h2>
-                                <p style="margin: 0; color: #718096;"><?php echo htmlspecialchars($user['email']); ?></p>
+                            <div class="teacher-info">
+                                <h3>Professor <?php echo htmlspecialchars($course['teacher_name'] ?? 'Unknown'); ?></h3>
+                                <div class="course-details">
+                                    <p>Courses handled: <?php echo htmlspecialchars($course['language_name'] ?? $course['subject_name'] ?? ''); ?></p>
+                                </div>
+                                <div class="course-schedule">
+                                    <p>Class Schedule: 10AM - 1PM</p>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div id="profileAlert"></div>
-                        
-                        <form id="profileForm">
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" value="<?php echo htmlspecialchars($user['email']); ?>" disabled style="background: #f5f5f5; cursor: not-allowed;">
-                                <small style="color: #718096; font-size: 12px; margin-top: 4px; display: block;">Email cannot be changed</small>
-                            </div>
-                            <button type="submit" class="btn-primary">Update Profile</button>
-                        </form>
-                    </div>
-
-                    <div class="settings-section">
-                        <div class="section-title">Change Password</div>
-                        <div id="passwordAlert"></div>
-                        <form id="passwordForm">
-                            <div class="form-group">
-                                <label>Current Password</label>
-                                <input type="password" name="current_password" required>
-                            </div>
-                            <div class="form-group">
-                                <label>New Password</label>
-                                <input type="password" name="new_password" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm New Password</label>
-                                <input type="password" name="confirm_password" required>
-                            </div>
-                            <button type="submit" class="btn-primary">Change Password</button>
-                        </form>
-                    </div>
-
-                    <div class="settings-section">
-                        <div class="section-title">Preferences</div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Dark Mode 🌙</h3>
-                                <p>Switch between light and dark theme (Keyboard shortcut: Ctrl+Shift+D)</p>
-                            </div>
-                            <div class="toggle-switch" id="darkModeToggle">
-                                <div class="toggle-slider"></div>
-                            </div>
+                            <button class="chat-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="settings-section">
-                        <div class="section-title">Danger Zone</div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <h3>Delete Account</h3>
-                                <p>Permanently delete your account and all data</p>
+                    <div class="right-section">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h2>Lessons</h2>
+                                <button class="menu-btn">⋮</button>
                             </div>
-                            <button class="btn-danger" onclick="confirmDelete()">Delete Account</button>
+                            <div class="card-content">
+                                <?php if(empty($lessons)): ?>
+                                <p class="empty-text">No lessons yet</p>
+                                <?php else: ?>
+                                <?php foreach($lessons as $index => $lesson): ?>
+                                <div class="lesson-item">
+                                    <span>Lesson <?php echo $index + 1; ?>: <?php echo htmlspecialchars($lesson['title']); ?></span>
+                                </div>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h2>Activities</h2>
+                                <button class="menu-btn">⋮</button>
+                            </div>
+                            <div class="card-content">
+                                <div class="activity-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Completed</span>
+                                        <span class="stat-value completed"><?php echo $completed_activities; ?></span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Missed</span>
+                                        <span class="stat-value missed"><?php echo $missed_activities; ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h2>Written</h2>
+                                <button class="menu-btn">⋮</button>
+                            </div>
+                            <div class="card-content">
+                                <?php if(empty($exams)): ?>
+                                <p class="empty-text">No exams yet</p>
+                                <?php else: ?>
+                                <?php foreach($exams as $exam): ?>
+                                <div class="written-item"><?php echo htmlspecialchars($exam['exam_title']); ?></div>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h2>Announcements</h2>
+                                <button class="menu-btn">⋮</button>
+                            </div>
+                            <div class="card-content">
+                                <div class="announcements-list">
+                                    <?php if(empty($announcements)): ?>
+                                    <p class="empty-text">No announcements yet</p>
+                                    <?php else: ?>
+                                    <?php foreach($announcements as $announcement): ?>
+                                    <div class="announcement-item">
+                                        <p class="announcement-text"><?php echo nl2br(htmlspecialchars($announcement['content'])); ?></p>
+                                        <p class="announcement-date"><?php echo date('F j, Y g:i A', strtotime($announcement['created_at'])); ?></p>
+                                    </div>
+                                    <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -213,7 +291,6 @@ if(!$user) {
     </div>
     
     <script src="js/dark-mode.js"></script>
-    
     <script>
         const sidebar = document.getElementById('sidebar');
         const menuToggle = document.getElementById('menuToggle');
@@ -286,69 +363,6 @@ if(!$user) {
             const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
             return text.replace(/[&<>"']/g, m => map[m]);
         }
-
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            fetch('update_profile.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const alert = document.getElementById('profileAlert');
-                if(data.success) {
-                    alert.className = 'alert success';
-                    alert.textContent = data.message;
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    alert.className = 'alert error';
-                    alert.textContent = data.message;
-                }
-            });
-        });
-
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            if(formData.get('new_password') !== formData.get('confirm_password')) {
-                const alert = document.getElementById('passwordAlert');
-                alert.className = 'alert error';
-                alert.textContent = 'Passwords do not match';
-                return;
-            }
-            
-            fetch('change_password.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const alert = document.getElementById('passwordAlert');
-                if(data.success) {
-                    alert.className = 'alert success';
-                    alert.textContent = data.message;
-                    this.reset();
-                } else {
-                    alert.className = 'alert error';
-                    alert.textContent = data.message;
-                }
-            });
-        });
-
-        function confirmDelete() {
-            if(confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                if(confirm('This will permanently delete all your data. Are you absolutely sure?')) {
-                    window.location.href = 'delete_account.php';
-                }
-            }
-        }
-        
-        window.addEventListener('darkModeChanged', function(e) {
-            console.log('Dark mode is now:', e.detail.enabled ? 'enabled' : 'disabled');
-        });
     </script>
 </body>
 </html>
