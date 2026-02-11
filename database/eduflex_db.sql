@@ -38,6 +38,15 @@ CREATE TABLE `achievements` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `achievements`
+--
+
+LOCK TABLES `achievements` WRITE;
+/*!40000 ALTER TABLE `achievements` DISABLE KEYS */;
+/*!40000 ALTER TABLE `achievements` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `activities`
 --
 
@@ -60,6 +69,15 @@ CREATE TABLE `activities` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `activities`
+--
+
+LOCK TABLES `activities` WRITE;
+/*!40000 ALTER TABLE `activities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `activities` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `announcements`
 --
 
@@ -80,6 +98,16 @@ CREATE TABLE `announcements` (
   CONSTRAINT `announcements_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `announcements`
+--
+
+LOCK TABLES `announcements` WRITE;
+/*!40000 ALTER TABLE `announcements` DISABLE KEYS */;
+INSERT INTO `announcements` VALUES (1,1,1,NULL,'Good Evening, Everyone!','2026-02-09 08:30:51'),(2,1,1,NULL,'Hello','2026-02-09 08:31:02');
+/*!40000 ALTER TABLE `announcements` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `assignments`
@@ -108,6 +136,15 @@ CREATE TABLE `assignments` (
   CONSTRAINT `assignments_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `assignments`
+--
+
+LOCK TABLES `assignments` WRITE;
+/*!40000 ALTER TABLE `assignments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `assignments` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `courses`
@@ -146,6 +183,16 @@ CREATE TABLE `courses` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `courses`
+--
+
+LOCK TABLES `courses` WRITE;
+/*!40000 ALTER TABLE `courses` DISABLE KEYS */;
+INSERT INTO `courses` VALUES (1,'SQL',NULL,NULL,'751689',1,NULL,NULL,14,11,11,'BSIS - 3B','2026-02-09 05:22:53','2026-02-09 05:22:53',1),(2,'PHP',NULL,NULL,'830924',1,NULL,NULL,7,10,10,'IT - 1A','2026-02-09 07:19:21','2026-02-09 07:19:21',1);
+/*!40000 ALTER TABLE `courses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `enrollments`
 --
 
@@ -166,6 +213,16 @@ CREATE TABLE `enrollments` (
   CONSTRAINT `enrollments_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `enrollments`
+--
+
+LOCK TABLES `enrollments` WRITE;
+/*!40000 ALTER TABLE `enrollments` DISABLE KEYS */;
+INSERT INTO `enrollments` VALUES (1,3,1,'2026-02-09 07:36:14',0,0);
+/*!40000 ALTER TABLE `enrollments` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `exams`
@@ -189,6 +246,15 @@ CREATE TABLE `exams` (
   CONSTRAINT `exams_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `exams`
+--
+
+LOCK TABLES `exams` WRITE;
+/*!40000 ALTER TABLE `exams` DISABLE KEYS */;
+/*!40000 ALTER TABLE `exams` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `grades`
@@ -215,6 +281,15 @@ CREATE TABLE `grades` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `grades`
+--
+
+LOCK TABLES `grades` WRITE;
+/*!40000 ALTER TABLE `grades` DISABLE KEYS */;
+/*!40000 ALTER TABLE `grades` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `lessons`
 --
 
@@ -235,6 +310,15 @@ CREATE TABLE `lessons` (
   CONSTRAINT `lessons_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lessons`
+--
+
+LOCK TABLES `lessons` WRITE;
+/*!40000 ALTER TABLE `lessons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lessons` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `problems`
@@ -262,6 +346,15 @@ CREATE TABLE `problems` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `problems`
+--
+
+LOCK TABLES `problems` WRITE;
+/*!40000 ALTER TABLE `problems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `problems` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `programming_languages`
 --
 
@@ -278,6 +371,16 @@ CREATE TABLE `programming_languages` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `programming_languages`
+--
+
+LOCK TABLES `programming_languages` WRITE;
+/*!40000 ALTER TABLE `programming_languages` DISABLE KEYS */;
+INSERT INTO `programming_languages` VALUES (1,'C Programming','2026-02-09 05:03:47'),(2,'Java','2026-02-09 05:03:47'),(3,'Python','2026-02-09 05:03:47'),(4,'JavaScript','2026-02-09 05:03:47'),(5,'C++','2026-02-09 05:03:47'),(6,'C#','2026-02-09 05:03:47'),(7,'PHP','2026-02-09 05:03:47'),(8,'Ruby','2026-02-09 05:03:47'),(9,'Go','2026-02-09 05:03:47'),(10,'Swift','2026-02-09 05:03:47'),(11,'Kotlin','2026-02-09 05:03:47'),(12,'Rust','2026-02-09 05:03:47'),(13,'TypeScript','2026-02-09 05:03:47'),(14,'SQL','2026-02-09 05:03:47');
+/*!40000 ALTER TABLE `programming_languages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `programs`
 --
 
@@ -291,6 +394,16 @@ CREATE TABLE `programs` (
   PRIMARY KEY (`program_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `programs`
+--
+
+LOCK TABLES `programs` WRITE;
+/*!40000 ALTER TABLE `programs` DISABLE KEYS */;
+INSERT INTO `programs` VALUES (9,'Bachelor of Science in Computer Science','2026-02-09 05:12:26'),(10,'Bachelor of Science in Information Technology','2026-02-09 05:12:26'),(11,'Bachelor of Science in Information Systems','2026-02-09 05:12:26'),(12,'Bachelor of Science in Entertainment and Multimedia Computing','2026-02-09 05:12:26');
+/*!40000 ALTER TABLE `programs` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `sessions`
@@ -313,6 +426,15 @@ CREATE TABLE `sessions` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `sessions`
+--
+
+LOCK TABLES `sessions` WRITE;
+/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `subjects`
 --
 
@@ -326,6 +448,16 @@ CREATE TABLE `subjects` (
   PRIMARY KEY (`subject_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `subjects`
+--
+
+LOCK TABLES `subjects` WRITE;
+/*!40000 ALTER TABLE `subjects` DISABLE KEYS */;
+INSERT INTO `subjects` VALUES (1,'Mathematics','2026-02-09 05:03:47'),(2,'Physics','2026-02-09 05:03:47'),(3,'Chemistry','2026-02-09 05:03:47'),(4,'Biology','2026-02-09 05:03:47'),(5,'English','2026-02-09 05:03:47'),(6,'History','2026-02-09 05:03:47'),(7,'Computer Science','2026-02-09 05:03:47'),(8,'Data Structures','2026-02-09 05:03:47'),(9,'Algorithms','2026-02-09 05:03:47'),(10,'Web Development','2026-02-09 05:03:47'),(11,'Database Management','2026-02-09 05:03:47'),(12,'Software Engineering','2026-02-09 05:03:47'),(13,'Artificial Intelligence','2026-02-09 05:03:47'),(14,'Machine Learning','2026-02-09 05:03:47'),(15,'Cybersecurity','2026-02-09 05:03:47');
+/*!40000 ALTER TABLE `subjects` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `submissions`
@@ -352,6 +484,15 @@ CREATE TABLE `submissions` (
   CONSTRAINT `submissions_ibfk_2` FOREIGN KEY (`problem_id`) REFERENCES `problems` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `submissions`
+--
+
+LOCK TABLES `submissions` WRITE;
+/*!40000 ALTER TABLE `submissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `submissions` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -383,6 +524,16 @@ CREATE TABLE `users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'eyria306','xdreiaawe@gmail.com',NULL,'116446608577966139282','ey ria','teacher','https://lh3.googleusercontent.com/a/ACg8ocI_gAQ6pi6k0GBTB8Lq242O7LrCqG8HOOQvs6JazdrDNQBCf8dgeg=s96-c','2026-02-09 05:04:16','2026-02-09 08:55:40','2026-02-09 08:55:40',1),(2,'eirahrhinoahdizon490','eirahrhinoahd@gmail.com',NULL,'101183469023588083984','Eirah Rhinoah Dizon','teacher','https://lh3.googleusercontent.com/a/ACg8ocJK4pXUh-xRxVkJsS3ksRY_FxQeKYGf2mcQa7Kq5CCIE103tQ=s96-c','2026-02-09 07:03:42','2026-02-09 07:03:45','2026-02-09 07:03:42',1),(3,'orañojohnnoel485','johnnoelorano@gmail.com',NULL,'108607019632326848287','Oraño John Noel','student','https://lh3.googleusercontent.com/a/ACg8ocJ11aPVpBX9UA4RcTffP76zPgKTOgSAs2mzTjKmsZuH81Ie1AFDwg=s96-c','2026-02-09 07:06:22','2026-02-09 08:40:22','2026-02-09 08:40:22',1);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Dumping events for database 'eduflex_db'
 --
 
@@ -399,4 +550,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-09 19:11:44
+-- Dump completed on 2026-02-11 11:38:33

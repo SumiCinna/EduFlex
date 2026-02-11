@@ -107,7 +107,7 @@ body {
 }
 
 .notification-btn {
-    background: #f7fafc;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     width: 40px;
     height: 40px;
@@ -117,10 +117,11 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
+    color: white;
 }
 
 .notification-btn:hover {
-    background: #edf2f7;
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .user-profile {
